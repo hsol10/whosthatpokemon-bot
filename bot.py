@@ -15,23 +15,38 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.author != client.user and message.content.startswith('$wtp'):
-        p = random.choice(list(pokemon.keys()))
-        print(p)
-        pname = pokemon.get(p)
-        await client.send_file(client.get_channel('512765323116806158'), 'pokemon/' + p)
-        timeout_end = time.time() + 10
-        while time.time() < timeout_end:
-            answer = await client.wait_for_message(channel=client.get_channel('512765323116806158'))
-            print(answer.content)
-            if answer.content != '':
-                break
-        if answer.content == pname:
-            await client.send_message(client.get_channel('512765323116806158'), 'correct, good job!')
-            
-        elif answer.content != pname:
-            await client.send_message(client.get_channel('512765323116806158'), 'incorrect')
-        
-        await client.send_message(message.channel, 'done')
+        async def get_question():
+            p = random.choice(list(pokemon.keys()))
+            print(p)
+            pname = pokemon.get(p)
+            print(pname)
+            await client.send_file(client.get_channel('512765323116806158'), 'pokemon/' + p)
+            answer = await client.wait_for_message(author=message.author,
+                                                    channel=client.get_channel('512765323116806158'),
+                                                    timeout=10)
+            if answer:
+                print(answer.content)  
+
+                if answer.content == pname:
+                    time.sleep(0.5)
+                    await client.send_message(client.get_channel('512765323116806158'), 'correct, good job!')
+                    global points
+                    points += 1
+                    print(points)
+                    await get_question()
+                    
+                elif answer.content != pname:
+                    time.sleep(0.5)
+                    await client.send_message(client.get_channel('512765323116806158'), 'incorrect')
+                    await client.send_message(client.get_channel('512765323116806158'), f'you got {points} correct answers')
+            else:
+                await client.send_message(client.get_channel('512765323116806158'), 'Ran out of time!')
+                await client.send_message(client.get_channel('512765323116806158'), f'you got {points} correct answers')
+        global points
+        points = 0
+        await get_question()
+
+    if message.author != client.user and message.content.startswith('$lb'):
         
 
 keep_alive()
