@@ -1,4 +1,5 @@
 from keep_alive import keep_alive
+from discord.ext import commands
 import discord
 import os
 import time
@@ -6,6 +7,7 @@ from pokemon import pokemon
 import random
 
 client = discord.Client()
+client = commands.Bot(command_prefix='$')
 
 @client.event
 async def on_ready():
@@ -29,7 +31,7 @@ async def on_message(message):
 
                 if answer.content == pname:
                     time.sleep(0.5)
-                    await client.send_message(client.get_channel('512765323116806158'), 'correct, good job!')
+                    await client.send_message(client.get_channel('512765323116806158'), 'Correct, good job!')
                     global points
                     points += 1
                     print(points)
@@ -37,18 +39,11 @@ async def on_message(message):
                     
                 elif answer.content != pname:
                     time.sleep(0.5)
-                    await client.send_message(client.get_channel('512765323116806158'), 'incorrect')
+                    await client.send_message(client.get_channel('512765323116806158'), f'Incorrect! The correct answer was {pname}')
                     await client.send_message(client.get_channel('512765323116806158'), f'you got {points} correct answers')
             else:
-                await client.send_message(client.get_channel('512765323116806158'), 'Ran out of time!')
+                await client.send_message(client.get_channel('512765323116806158'), f'Ran out of time! The correct answer was {pname}')
                 await client.send_message(client.get_channel('512765323116806158'), f'you got {points} correct answers')
         global points
         points = 0
         await get_question()
-
-    if message.author != client.user and message.content.startswith('$lb'):
-        
-
-keep_alive()
-token = os.environ.get("DISCORD_BOT_SECRET")
-client.run(token)
